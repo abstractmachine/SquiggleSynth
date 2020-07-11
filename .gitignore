@@ -1,5 +1,5 @@
 # Don't include Freya Holmér's Shapes package
-/[As]ssets/Shapes/
+/[As]ssets/Shapes/*
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
