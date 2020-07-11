@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using Shapes;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// Squiggle is a component that draws a polyline using incoming points from pen or mouse pointers
 /// Lines are drawn using Freya Holmér's Shapes package
-/// At the end of the drawing period, path analysis is sent out to determine path type
+/// At the end of the drawing period, path analysis is sent out to InteractML to determine path type
 /// </summary>
 public class Squiggle : MonoBehaviour
 {
@@ -19,7 +18,13 @@ public class Squiggle : MonoBehaviour
 	// we use this to give an effect of progressively removing the oldest points
 	int startingIndex = 0;
 
+	[HideInInspector]
+	public int fingerId = -1;
+	[HideInInspector]
+	public bool mouseClick = false;
+	[HideInInspector]
 	public bool drawing = true;
+	[HideInInspector]
 	public bool dying = false;
 
 	public void OnEnable()
@@ -36,8 +41,7 @@ public class Squiggle : MonoBehaviour
 
 	void Start()
 	{
-		Vector3 position = Pointer.current.position.ReadValue();
-		position = ScreenToWorld(position);
+		Vector3 position = FindStartingPoint();
 
 		path = new PolylinePath();
 		path.AddPoint(position.x, position.y);
@@ -45,31 +49,92 @@ public class Squiggle : MonoBehaviour
 		StartCoroutine(DrawLine());
 	}
 
+	Vector3 FindStartingPoint()
+	{
+		// if this was a mousePress
+		if (mouseClick)
+		{
+			return ScreenToWorld(Input.mousePosition);
+		}
+
+		// if this was a pen press
+		for (int i = 0; i < Input.touchCount; i++)
+		{
+			// if this is the right index
+			if (Input.touches[i].fingerId == fingerId) 
+			{	// return this position in world space
+				return ScreenToWorld(Input.touches[i].position);
+			}
+		}
+
+		// we found neither the mousePosition (not mouse click), nor the fingerId
+		Debug.LogError("Error creating next Squiggle (fingerId not found");
+		return Vector3.zero;
+	}
+
 	IEnumerator DrawLine()
 	{
-		bool wasReleasedThisFrame = false;
+		bool movementDone = false;
 		// keep looping while the pointer press in still active
-		while (!wasReleasedThisFrame)
+		while (!movementDone)
 		{
-			float magnitude = Pointer.current.delta.ReadValue().magnitude;
-			// if we've moved the pointer
-			if (magnitude > 0.0f)
-			{
-				// adapt pointer to screen space
-				Vector3 position = Pointer.current.position.ReadValue();
-				position = ScreenToWorld(position);
-				path.AddPoint(position.x, position.y);
-			}
+			movementDone = CheckForMovementDone();
 			// wait for the next frame
 			yield return new WaitForEndOfFrame();
-			// check to see if we've finished drawing
-			wasReleasedThisFrame = Pointer.current.press.wasReleasedThisFrame;
 		}
 
 		// ok we're done drawing
 		drawing = false;
 		// analyze the results
 		AnalyzePolyline();
+	}
+
+	bool CheckForMovementDone()
+	{
+		// if this is a mouse click
+		if (mouseClick)
+		{
+			// get the last position
+			Vector3 lastPoint = path.LastPoint.point;
+			// get the new position
+			Vector3 position = ScreenToWorld(Input.mousePosition);
+			// compare the two
+			Vector3 delta = new Vector3(position.x - lastPoint.x, position.y - lastPoint.y, 0.0f);
+			// check magnitude
+			if (delta.magnitude > 0.0f)
+			{	// add point
+				path.AddPoint(position.x, position.y);
+			}
+			// is there a mouse click up event? (can't use Up because this is in an IFrame cycle)
+			if (!Input.GetMouseButton(0))
+			{	
+				return true;
+			}
+			// otherwise, no movement
+			return false;
+		}
+
+		for (int i = 0; i < Input.touchCount; i++)
+		{
+			// if this isn't the right index
+			if (Input.touches[i].fingerId != fingerId) continue;
+			// get the position of this touch
+			Vector3 position = Input.touches[i].position;
+			// adapt point to screen space
+			position = ScreenToWorld(position);
+			// if we've moved the pointer
+			if (Input.touches[i].deltaPosition.magnitude > 0.0f)
+			{
+				path.AddPoint(position.x, position.y);
+			}
+			// check to see if we've finished drawing
+			if (Input.touches[i].phase == TouchPhase.Ended ||  Input.touches[i].phase == TouchPhase.Canceled)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	void AnalyzePolyline()
@@ -106,9 +171,13 @@ public class Squiggle : MonoBehaviour
 				}
 				tempPath.AddPoint(point);
 			}
-			// draw the line
-			Draw.LineEndCaps = LineEndCap.Round;
-			Draw.Polyline(tempPath, closed : false, thickness : thickness, Color.white);
+			// make sure we have more than one point
+			if (tempPath.Count > 1)
+			{
+				// draw the line
+				Draw.LineEndCaps = LineEndCap.Round;
+				Draw.Polyline(tempPath, closed : false, thickness : thickness, Color.white);
+			}
 		}
 	}
 

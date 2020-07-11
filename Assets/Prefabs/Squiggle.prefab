@@ -40,7 +40,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4302531624165702520}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c4973236bfbd472fb43525ef174ac7d, type: 3}
+  m_Script: {fileID: 11500000, guid: a8cb9cfb077884394af364adc2326fcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   thickness: 0.05
+  fingerId: -1
+  drawing: 1
+  dying: 0
