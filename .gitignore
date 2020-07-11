@@ -1,5 +1,5 @@
 # Don't include Freya Holmér's Shapes package
-/[As]ssets/Shapes/*
+/Assets/Shapes/*
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
@@ -60,4 +60,6 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
+
+.DS_Store
 
