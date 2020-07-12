@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Squiggle.unity
+    path: Assets/Squiggle/Scenes/Squiggle.unity
     guid: b050169c307be4661a6cca25d112a66c
   m_configObjects: {}
