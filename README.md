@@ -1,5 +1,5 @@
 # Squiggle
-A simple demo Draw-A-Synth interface built for an InteractML game jam.
+A simple demo Draw-A-Synth interface built for the July 2002 [InteractML Game Jam](http://interactml.com/events/iml-game-jam-july-2020.html).
 
 # Unity
 This was built using Unity 2019.2.
