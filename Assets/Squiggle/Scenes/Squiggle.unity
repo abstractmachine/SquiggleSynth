@@ -294,6 +294,72 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &489007714
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 489007716}
+  - component: {fileID: 489007715}
+  m_Layer: 0
+  m_Name: IML System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &489007715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489007714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c477b3f40f547843930edfdcbde5951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MLController: {fileID: 11400000, guid: 85fb7e3adc65f4f5b8c7aa07c079c2f1, type: 2}
+  GameObjectsToUse: []
+  m_GOsPerGONodes:
+    m_keys: []
+    m_values: []
+  m_GameObjectNodeList: []
+  m_ScriptNodesList:
+  - {fileID: 1111636944888013445, guid: 85fb7e3adc65f4f5b8c7aa07c079c2f1, type: 2}
+  - {fileID: -5284493649708392633, guid: 85fb7e3adc65f4f5b8c7aa07c079c2f1, type: 2}
+  FeaturesUpdated: 0
+  ComponentsWithIMLData:
+  - GameComponent: {fileID: 968799015}
+    ControlClones: 0
+  - GameComponent: {fileID: 968799014}
+    ControlClones: 0
+  m_MonoBehavioursPerScriptNode:
+    m_keys:
+    - {fileID: 968799015}
+    - {fileID: 968799014}
+    m_values:
+    - {fileID: 1111636944888013445, guid: 85fb7e3adc65f4f5b8c7aa07c079c2f1, type: 2}
+    - {fileID: -5284493649708392633, guid: 85fb7e3adc65f4f5b8c7aa07c079c2f1, type: 2}
+  m_MonobehaviourClones: []
+--- !u!4 &489007716
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489007714}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &968799011
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,6 +370,8 @@ GameObject:
   m_Component:
   - component: {fileID: 968799012}
   - component: {fileID: 968799013}
+  - component: {fileID: 968799015}
+  - component: {fileID: 968799014}
   m_Layer: 0
   m_Name: SquiggleManager
   m_TagString: Untagged
@@ -340,59 +408,28 @@ MonoBehaviour:
   squigglePrefab: {fileID: 4302531624165702520, guid: 3fb0b1c91a67e494b9c15450d2dfe3c0,
     type: 3}
   maximumSquiggles: 5
---- !u!1 &1492964919
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1492964921}
-  - component: {fileID: 1492964920}
-  m_Layer: 0
-  m_Name: IML System
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1492964920
+--- !u!114 &968799014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492964919}
+  m_GameObject: {fileID: 968799011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c477b3f40f547843930edfdcbde5951, type: 3}
+  m_Script: {fileID: 11500000, guid: 27416ee13288e4e9290a601e4aabec6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MLController: {fileID: 11400000, guid: 706ca8a0b69754beb896613ed1a64537, type: 2}
-  GameObjectsToUse: []
-  m_GOsPerGONodes:
-    m_keys: []
-    m_values: []
-  m_GameObjectNodeList: []
-  m_ScriptNodesList: []
-  FeaturesUpdated: 0
-  ComponentsWithIMLData: []
-  m_MonoBehavioursPerScriptNode:
-    m_keys: []
-    m_values: []
-  m_MonobehaviourClones: []
---- !u!4 &1492964921
-Transform:
+--- !u!114 &968799015
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1492964919}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_GameObject: {fileID: 968799011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d53afcef89f475f992f8796f30f7ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  labelValue: 0

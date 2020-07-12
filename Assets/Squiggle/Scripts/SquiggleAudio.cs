@@ -34,12 +34,12 @@ public class SquiggleAudio : MonoBehaviour
 
     void OnAudioRead(float[] data)
     {
-        int count = 0;
-        while (count < data.Length)
+        int index = 0;
+        while (index < data.Length)
         {
-            data[count] = Mathf.Sin(2 * Mathf.PI * frequency * position / samplerate);
+            data[index] = Mathf.Sin(2 * Mathf.PI * frequency * position / samplerate);
             position++;
-            count++;
+            index++;
         }
     }
 

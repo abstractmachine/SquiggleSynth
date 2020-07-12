@@ -20,6 +20,7 @@ public class Squiggle : MonoBehaviour
 	public float label = -1.0f;
 
 	SquiggleAudio squiggleAudio;
+	SquiggleManager squiggleManager;
 
 	// the actual path
 	private PolylinePath path;
@@ -43,6 +44,8 @@ public class Squiggle : MonoBehaviour
 	[HideInInspector]
 	public bool drawing = true;
 	[HideInInspector]
+	public bool playing = false;
+	[HideInInspector]
 	public bool dying = false;
 
 	public void OnEnable()
@@ -60,6 +63,7 @@ public class Squiggle : MonoBehaviour
 	void Start()
 	{
 		squiggleAudio = GetComponent<SquiggleAudio>();
+		squiggleManager = transform.parent.GetComponent<SquiggleManager>();
 
 		Vector3 position = FindStartingPoint();
 
@@ -85,9 +89,11 @@ public class Squiggle : MonoBehaviour
 				// if we're not drawing
 				if (!drawing)
 				{
+					float value = 0.0f;
 					// animate the path
 					float pct = i / (float) path.Count;
 					// calculate arc-tangent from delta
+					// FIXME: I would have assumed the inverse current-previous for the ATAN2, hmmm....
 					Vector3 deltaPoint = previousPoint - currentPoint;
 					float atan = Mathf.Atan2(deltaPoint.y, deltaPoint.x);
 					float sin = Mathf.Sin(atan);
@@ -95,12 +101,12 @@ public class Squiggle : MonoBehaviour
 					// figture out the index
 					int spectrumIndex = (int)(pct * squiggleAudio.logSpectrum.Length);
 					// use spectrum for radius
-					float value = squiggleAudio.logSpectrum[spectrumIndex];
+					value = squiggleAudio.logSpectrum[spectrumIndex];
 					// FIXME: do a proper FFT normalization
 					float attenuation = 0.025f;
-					value *= attenuation;
 					// FIXME: replace random with a proper FFT using spectrum value
-					float radius = Random.Range(-value, value);
+					float radius = Random.Range(-value*attenuation, value*attenuation);
+					// float radius = value * attenuation;
 					// apply to point
 					currentPoint.x += radius * sin;
 					currentPoint.y += radius * cos;
@@ -220,11 +226,32 @@ public class Squiggle : MonoBehaviour
 	{
 		CalculateCenter();
 
-		// for now it's random
-		label = (int)Random.Range(0,3);
+		SendPositions();
 
+		// FIXME: for now this is just randomly generated, without waiting for the response from InteractML
+		ReceivedLabel((int)Random.Range(0,3));
+
+	}
+
+
+	/// <summary>
+	/// Send the positions InteractML
+	/// </summary>
+	void SendPositions()
+	{
+		// find the data out object
+		SquiggleDataOut squiggleDataOut = squiggleManager.GetComponent<SquiggleDataOut>();
+
+		squiggleDataOut.SendPositions(deltas.ToArray());
+	}
+
+
+	public void ReceivedLabel(float newLabel)
+	{
+		label = newLabel;
+
+		// now that we have a label, we can create the audio (with it's type)
 		CreateAudio();
-
 	}
 
 
@@ -233,6 +260,8 @@ public class Squiggle : MonoBehaviour
 		float frequency = 220.0f + (220.0f * label);
 
 		squiggleAudio.Create(frequency);
+
+		playing = true;
 	}
 
 	void CalculateCenter()
