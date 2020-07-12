@@ -19,6 +19,8 @@ public class Squiggle : MonoBehaviour
 
 	public float label = -1.0f;
 
+	SquiggleAudio squiggleAudio;
+
 	// the actual path
 	private PolylinePath path;
 	List<Vector3> points = new List<Vector3>();
@@ -57,6 +59,8 @@ public class Squiggle : MonoBehaviour
 
 	void Start()
 	{
+		squiggleAudio = GetComponent<SquiggleAudio>();
+
 		Vector3 position = FindStartingPoint();
 
 		path = new PolylinePath();
@@ -73,22 +77,35 @@ public class Squiggle : MonoBehaviour
 		if (path != null && path.Count > 1)
 		{
 			PolylinePath tempPath = new PolylinePath();
-			for (int i = startingIndex; i < path.Count; ++i)
+			for (int i = Mathf.Max(1,startingIndex); i < path.Count; ++i)
 			{
 				// extract this point
-				Vector3 point = path[i].point;
+				Vector3 previousPoint = path[i-1].point;
+				Vector3 currentPoint = path[i].point;
 				// if we're not drawing
 				if (!drawing)
 				{
 					// animate the path
 					float pct = i / (float) path.Count;
-					float piOffset = pct * (Mathf.PI * 2);
-					float sin = Mathf.Sin((Time.time * sinSpeed) + piOffset);
-					float cos = Mathf.Cos((Time.time * sinSpeed) + piOffset);
-					point.x += radius * sin;
-					point.y += radius * cos;
+					// calculate arc-tangent from delta
+					Vector3 deltaPoint = previousPoint - currentPoint;
+					float atan = Mathf.Atan2(deltaPoint.y, deltaPoint.x);
+					float sin = Mathf.Sin(atan);
+					float cos = Mathf.Cos(atan);
+					// figture out the index
+					int spectrumIndex = (int)(pct * squiggleAudio.logSpectrum.Length);
+					// use spectrum for radius
+					float value = squiggleAudio.logSpectrum[spectrumIndex];
+					// FIXME: do a proper FFT normalization
+					float attenuation = 0.025f;
+					value *= attenuation;
+					// FIXME: replace random with a proper FFT using spectrum value
+					float radius = Random.Range(-value, value);
+					// apply to point
+					currentPoint.x += radius * sin;
+					currentPoint.y += radius * cos;
 				}
-				tempPath.AddPoint(point);
+				tempPath.AddPoint(currentPoint);
 
 				// draw the label
 			}
@@ -202,6 +219,20 @@ public class Squiggle : MonoBehaviour
 	void AnalyzePolyline()
 	{
 		CalculateCenter();
+
+		// for now it's random
+		label = (int)Random.Range(0,3);
+
+		CreateAudio();
+
+	}
+
+
+	void CreateAudio()
+	{
+		float frequency = 220.0f + (220.0f * label);
+
+		squiggleAudio.Create(frequency);
 	}
 
 	void CalculateCenter()
