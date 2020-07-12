@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Shapes;
 using UnityEngine;
+using TMPro;
 
 /// <summary>
 /// Squiggle is a component that draws a polyline using incoming points from pen or mouse pointers
@@ -14,6 +15,10 @@ public class Squiggle : MonoBehaviour
 	[Range(0.001f, 1.0f)]
 	[SerializeField] float thickness = 0.05f;
 
+	public TMP_Text labelTextMesh;
+
+	public float label = -1.0f;
+
 	// the actual path
 	private PolylinePath path;
 	List<Vector3> points = new List<Vector3>();
@@ -22,6 +27,9 @@ public class Squiggle : MonoBehaviour
 	// used for animating line
 	private float sinSpeed = 20.0f;
 	private float radius = 0.1f;
+
+	Bounds bounds;
+	Vector3 center = Vector3.zero;
 
 	// we use this to give an effect of progressively removing the oldest points at death
 	private int startingIndex = 0;
@@ -58,6 +66,42 @@ public class Squiggle : MonoBehaviour
 
 		StartCoroutine(DrawLine());
 	}
+
+	public void OnRender(Camera cam)
+	{
+		// make sure we have a path and that it has at least 2 points
+		if (path != null && path.Count > 1)
+		{
+			PolylinePath tempPath = new PolylinePath();
+			for (int i = startingIndex; i < path.Count; ++i)
+			{
+				// extract this point
+				Vector3 point = path[i].point;
+				// if we're not drawing
+				if (!drawing)
+				{
+					// animate the path
+					float pct = i / (float) path.Count;
+					float piOffset = pct * (Mathf.PI * 2);
+					float sin = Mathf.Sin((Time.time * sinSpeed) + piOffset);
+					float cos = Mathf.Cos((Time.time * sinSpeed) + piOffset);
+					point.x += radius * sin;
+					point.y += radius * cos;
+				}
+				tempPath.AddPoint(point);
+
+				// draw the label
+			}
+			// make sure we have more than one point
+			if (tempPath.Count > 1)
+			{
+				// draw the line
+				Draw.LineEndCaps = LineEndCap.Round;
+				Draw.Polyline(tempPath, closed : false, thickness : thickness, Color.white);
+			}
+		}
+	}
+
 
 	Vector3 FindStartingPoint()
 	{
@@ -97,6 +141,8 @@ public class Squiggle : MonoBehaviour
 		drawing = false;
 		// analyze the results
 		AnalyzePolyline();
+		// show onscreen
+		PositionLabel();
 	}
 
 	bool CheckForMovementDone()
@@ -155,46 +201,26 @@ public class Squiggle : MonoBehaviour
 
 	void AnalyzePolyline()
 	{
+		CalculateCenter();
+	}
 
+	void CalculateCenter()
+	{
+		bounds = GeometryUtility.CalculateBounds(points.ToArray(), transform.localToWorldMatrix);
+		center = bounds.center;
+	}
+
+	void PositionLabel()
+	{
+		Transform labelTransform = transform.GetChild(0);
+		labelTransform.position = center;
+		labelTextMesh.text = label.ToString();
 	}
 
 	Vector3 ScreenToWorld(Vector3 point)
 	{
 		point.z = Mathf.Abs(Camera.main.transform.position.z);
 		return Camera.main.ScreenToWorldPoint(point);
-	}
-
-	public void OnRender(Camera cam)
-	{
-		// make sure we have a path and that it has at least 2 points
-		if (path != null && path.Count > 1)
-		{
-			PolylinePath tempPath = new PolylinePath();
-			for (int i = startingIndex; i < path.Count; ++i)
-			{
-				// extract this point
-				Vector3 point = path[i].point;
-				// if we're not drawing
-				if (!drawing)
-				{
-					// animate the path
-					float pct = i / (float) path.Count;
-					float piOffset = pct * (Mathf.PI * 2);
-					float sin = Mathf.Sin((Time.time * sinSpeed) + piOffset);
-					float cos = Mathf.Cos((Time.time * sinSpeed) + piOffset);
-					point.x += radius * sin;
-					point.y += radius * cos;
-				}
-				tempPath.AddPoint(point);
-			}
-			// make sure we have more than one point
-			if (tempPath.Count > 1)
-			{
-				// draw the line
-				Draw.LineEndCaps = LineEndCap.Round;
-				Draw.Polyline(tempPath, closed : false, thickness : thickness, Color.white);
-			}
-		}
 	}
 
 	public void Die()
